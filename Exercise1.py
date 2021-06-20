@@ -4,30 +4,51 @@ import math
 from matplotlib import pyplot as plt
 
 
-def convolution(img, filter):
+def convolution(img, kernel):
     """
     Given an image and a filter this function performs a convolution of the two arguments.
+    In details the function applies the given box filter to each pixel of the original image.
+    Each pixel of the original image is considered the center of a matrix of the size of the filter.
+    This allows to multiply the filter and the small matrix. Then the sum of all the values at the same position.
+    This gives us a value for the processed pixel at the same position as the original pixel.
+    Credits : https://github.com/ashushekar/image-convolution-from-scratch
     :param img: Input image on which we want to apply the box filter
     :param filter: box filter which we want to apply to the given image
     :return: modified version of the original image
     """
 
-    x, y = img.shape
-   # loop through the image and apply the filter.
-    for i in range(x):
-        for j in range(y):
-            img[i][j] = img[i][j] * filter
+    # create output matrix of the size of the input image
+    output_img = np.zeros_like(img)
+
+    # Add zero padding to the input image
+    # Adding zeros to the output image to allow the matrix multiplication
+    # to be made on the edge pixels of the original image
+    img_padded = np.zeros((img.shape[0] + 2, img.shape[1] + 2))
+    img_padded[1:-1, 1:-1] = img
+
+    # Go over every pixel of the image
+    for x in range(img.shape[1]):
+        for y in range(img.shape[0]):
+            # multiplication of the kernel and the image on a specific pixel
+            output_img[y, x] = (kernel * img_padded[y: y+3, x: x+3]).sum()
+            # print(output_img[y, x])
+
+    return output_img
 
 
 # import image in greyscale
-f = cv2.imread('images/Fallen-Angel.jpg', 0)
+img = cv2.imread('images/Fallen-Angel.jpg', 0)
 
-# box filter 3x3
-h = np.ones((3, 3), np.float32)
+# box filter 3x3 (kernel)
+filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
 
 # call the convolution function on our image and box filter.
-convolution(f, h)
+processed_img = convolution(img, filter)
 
-plt.subplot(111), plt.imshow(f, cmap='gray')
+
+# plot both original and processed images with convolution function
+plt.subplot(121), plt.imshow(img, cmap='gray')
 plt.title('initial image'), plt.xticks([]), plt.yticks([])
+plt.subplot(122), plt.imshow(processed_img, cmap='gray')
+plt.title('processed image'), plt.xticks([]), plt.yticks([])
 plt.show()
