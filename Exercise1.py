@@ -3,6 +3,9 @@ import numpy as np
 import math
 from matplotlib import pyplot as plt
 
+""""
+-----------Question 1-----------
+"""
 
 def convolution(img, kernel):
     """
@@ -51,4 +54,24 @@ plt.subplot(121), plt.imshow(img, cmap='gray')
 plt.title('initial image'), plt.xticks([]), plt.yticks([])
 plt.subplot(122), plt.imshow(processed_img, cmap='gray')
 plt.title('processed image'), plt.xticks([]), plt.yticks([])
+plt.show()
+
+""""
+-----------Question 3-----------
+"""
+
+fft_original_img = np.fft.fft2(img)
+fft_filter = np.fft.fft2(filter)
+fft_processed_img = np.fft.fft2(processed_img)
+
+shiftfft_original = np.fft.fftshift(fft_original_img)
+shiftfft_filter = np.fft.fftshift(fft_filter)
+shiftfft_processed = np.fft.fftshift(fft_processed_img)
+
+plt.subplot(231), plt.imshow(np.log(1+np.abs(shiftfft_original)), cmap='gray')
+plt.title('FFT of initial image'), plt.xticks([]), plt.yticks([])
+plt.subplot(232), plt.imshow(np.log(1+np.abs(shiftfft_filter)), cmap='gray')
+plt.title('FFT of the filter'), plt.xticks([]), plt.yticks([])
+plt.subplot(233), plt.imshow(np.log(1+np.abs(shiftfft_processed)), cmap='gray')
+plt.title('FFT of processed image'), plt.xticks([]), plt.yticks([])
 plt.show()
