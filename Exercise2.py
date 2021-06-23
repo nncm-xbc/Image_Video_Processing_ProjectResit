@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 
 
 # function that computes a motion blur mask given an image
-def motion_blur(img):
+def motion_blur(img, kernel):
     """
     This funtion first creates a kernel that will be applied to the image for the blur.
     The size of the kernel decides how much motion blur is applied to the image.
@@ -19,15 +19,12 @@ def motion_blur(img):
     The kernel is then normalized to allow the sum of the orignal image and the noise filter,
     which is then computed and outputed.
     :param img: Input image on which we want to apply the box filter
+    :param kernel: kernel that will be applied to the image
     :return: blurred version of the original image
     """
 
     # size of the kernel
-    # the larger the kernel, the more motion is applied to the image
-    kernel_size = 150
-
-    # Create the kernel\mask that will be applied to the given image.
-    kernel = np.zeros((kernel_size, kernel_size))
+    kernel_size = kernel.shape[:1][0]
 
     # fill in the horizontal middle row of the kernel for a horizontal motion blur
     kernel[int((kernel_size - 1) / 2), :] = np.ones(kernel_size)
@@ -44,12 +41,16 @@ def motion_blur(img):
 # import image in grayscale
 image = cv2.imread("images/flowers-min.jpg", 0)
 
+# Create the kernel\mask that will be applied to the given image.
+# the larger the kernel, the more motion is applied to the image
+kernel = np.zeros((100, 100))
+
 # apply the blur to the imported image
-blurred_image = motion_blur(image)
+blurred_image = motion_blur(image, kernel)
 
 # apply a gaussian noise to the blurred image
 # since the gaussian noise follows the standard deviation we use np.random.normal()
-noisy_img = blurred_image + np.random.normal(0, 25, blurred_image.shape)
+noisy_img = blurred_image + np.random.normal(0, 10, blurred_image.shape)
 
 # plot the blurred image and the noisy image
 plt.subplot(131), plt.imshow(image, cmap='gray')
@@ -109,6 +110,32 @@ def inverse_filter(img):
     return inverse
 
 
+def wiener_filter(img, kernel):
+    kernel /= np.sum(kernel)
+
+    # create an oputput copy of the image and compute its FFT
+    output_copy = np.copy(img)
+    output_fft = np.fft.fft2(output_copy)
+
+    # compute complex conjugate
+    kernel = np.fft.fft2(kernel, s=img.shape)
+    kernel_inverse = 1/kernel * (np.abs(np.conj(kernel) ** 2) / (np.abs(kernel) ** 2 + 25))
+
+    # apply the inverse kernel and compute inverse FFT for spatial domain image output
+    output_fft = output_fft * kernel_inverse
+    output = np.abs(np.fft.ifft2(output_fft))
+
+    return output
+
+
+# apply the wiener filtering or MMSE
+MMSE_img = wiener_filter(noisy_img, kernel)
+
+# plot the MMSE image
+plt.subplot(111), plt.imshow(np.log(1+np.abs(MMSE_img)), cmap='gray')
+plt.title('MMSE_img of noisy image'), plt.xticks([]), plt.yticks([])
+plt.show()
+
 # apply the inverse filter on the previous noisy image
 reversed_img = inverse_filter(noisy_img)
 
@@ -117,10 +144,3 @@ plt.subplot(111), plt.imshow(np.log(1+np.abs(reversed_img)), cmap='gray')
 plt.title('Reverse of noisy image'), plt.xticks([]), plt.yticks([])
 plt.show()
 
-# apply the wiener filtering or MMSE
-MMSE_img = wiener(reversed_img, 5)
-
-# plot the MMSE image
-plt.subplot(111), plt.imshow(np.log(1+np.abs(MMSE_img)), cmap='gray')
-plt.title('MMSE_img of reversed image'), plt.xticks([]), plt.yticks([])
-plt.show()

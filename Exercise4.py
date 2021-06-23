@@ -1,16 +1,15 @@
 import numpy as np
 import cv2
 
+"---Question 1---"
 """
-Create and train PCA model 
-
+Create and train the PCA model 
 """
-
 # create dataset
 face_vector = []
 counter = 1
 for i in range(6):
-    path = "Faces/face" + str(counter) + ".jpg"
+    path = "Faces/Training/face" + str(counter) + ".jpg"
     face_image = cv2.cvtColor(cv2.imread(path), cv2.COLOR_RGB2GRAY)
     counter += 1
     face_image = face_image.reshape(50625)
@@ -49,29 +48,77 @@ weights = normalized_face_vector.T.dot(eigen_faces.T)
 """
 Test the model
 """
-print("---------------------------------------------------")
-test_img = cv2.cvtColor(cv2.imread("Faces/test_face.jpg"), cv2.COLOR_RGB2GRAY)
+print("---------------------Testing------------------------------")
 
-# convert image into face vector
-test_img = test_img.reshape(50625, 1)
-print("-----face vector------")
-print(test_img)
 
-# normalize face vector
-# this allows to eliminate all the features that are common to all images
-test_normalized_face_vector = test_img - avg_face_vector
-print("-----Normalized vector------")
-print(test_normalized_face_vector)
+def is_face(img):
 
-# projection of the vector onto an eigenspace
-test_weight = test_normalized_face_vector.T.dot(eigen_faces.T)
-print("-----Weights------")
-print(test_weight)
+    # convert image into face vector
+    img = img.reshape(50625, 1)
+    # print("Face vectors : \n", img)
 
-# compute index with minimum distance
-distances = np.linalg.norm(test_weight - weights, axis=1)
-print("-----Distance to training data set instances------")
-print(distances)
-index = np.argmin(np.linalg.norm(test_weight - weights, axis=1))
-print("-----Index of closest match------")
-print(index)
+    # normalize face vector
+    # this allows to eliminate all the features that are common to all images
+    normalized_face_vector = img - avg_face_vector
+    # print("Normalized face vectors : \n", normalized_face_vector)
+
+    # projection of the vector onto an eigenspace
+    weight = normalized_face_vector.T.dot(eigen_faces.T)
+    # print("Weights : \n", weight)
+
+    # compute index with minimum distance
+    distances = np.linalg.norm(weight - weights, axis=1)
+    print("Distances to dataset : \n", distances)
+    index = np.argmin(np.linalg.norm(weight - weights, axis=1))
+    # print("Index of closest match : ", index)
+
+    if distances.min() < 4*10**7:
+        return print(True, "\n")
+    else:
+        return print(False, "\n")
+
+
+"---Question 2---"
+# Test with 3 faces in different Lighting
+print("---Testing light---")
+light_face1 = cv2.cvtColor(cv2.imread("Faces/Testing/face4.jpg"), cv2.COLOR_RGB2GRAY)
+light_face2 = cv2.cvtColor(cv2.imread("Faces/Testing/face6.jpg"), cv2.COLOR_RGB2GRAY)
+light_face3 = cv2.cvtColor(cv2.imread("Faces/Testing/face7.jpg"), cv2.COLOR_RGB2GRAY)
+is_face(light_face1)
+is_face(light_face2)
+is_face(light_face3)
+
+"---Question 3---"
+# Test with 2 different skin tones
+print("---Testing skin tone---")
+tone_face1 = cv2.cvtColor(cv2.imread("Faces/Testing/face1.jpg"), cv2.COLOR_RGB2GRAY)
+tone_face2 = cv2.cvtColor(cv2.imread("Faces/Testing/face4.jpg"), cv2.COLOR_RGB2GRAY)
+is_face(tone_face1)
+is_face(tone_face2)
+
+"---Question 4---"
+# Test with rotated images
+print("---Testing rotation---")
+rotated_face1 = cv2.cvtColor(cv2.imread("Faces/Testing/face2.jpg"), cv2.COLOR_RGB2GRAY)
+rotated_face2 = cv2.cvtColor(cv2.imread("Faces/Testing/face3.jpg"), cv2.COLOR_RGB2GRAY)
+is_face(rotated_face1)
+is_face(rotated_face2)
+
+"---Question 5---"
+# test with similar object to faces
+print("---Testing with objects---")
+cookie_face1 = cv2.cvtColor(cv2.imread("Faces/Testing/face8.jpg"), cv2.COLOR_RGB2GRAY)
+skulls_face2 = cv2.cvtColor(cv2.imread("Faces/Testing/face9.jpg"), cv2.COLOR_RGB2GRAY)
+christmas_face3 = cv2.cvtColor(cv2.imread("Faces/Testing/face10.jpg"), cv2.COLOR_RGB2GRAY)
+is_face(cookie_face1)
+is_face(skulls_face2)
+is_face(christmas_face3)
+
+"---Question 6---"
+print("---Fail testing---")
+fail_face1 = cv2.cvtColor(cv2.imread("Faces/Testing/face11.jpg"), cv2.COLOR_RGB2GRAY)
+fail_face2 = cv2.cvtColor(cv2.imread("Faces/Testing/face12.jpg"), cv2.COLOR_RGB2GRAY)
+fail_face3 = cv2.cvtColor(cv2.imread("Faces/Testing/face13.jpg"), cv2.COLOR_RGB2GRAY)
+is_face(fail_face1)
+is_face(fail_face2)
+is_face(fail_face3)

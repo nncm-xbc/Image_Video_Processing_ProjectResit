@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 from matplotlib import pyplot as plt
+from skimage.exposure import rescale_intensity
 
 """"
 -----------Question 1-----------
@@ -23,18 +24,30 @@ def convolution(img, kernel):
     # create output matrix of the size of the input image
     output_img = np.zeros_like(img)
 
+    # get the size of the box filter and the given image
+    (H, W) = img.shape[:2]
+    (kernel_H, kernel_W) = kernel.shape[:2]
+
+    # compute number of rows and colomns that need to be added to the image
+    pad = (kernel_W - 1) // 2
+
     # Add zero padding to the input image
     # Adding zeros to the output image to allow the matrix multiplication
     # to be made on the edge pixels of the original image
-    img_padded = np.zeros((img.shape[0] + 2, img.shape[1] + 2))
-    img_padded[1:-1, 1:-1] = img
+    image_padded = cv2.copyMakeBorder(img, pad, pad, pad, pad, cv2.BORDER_REPLICATE)
 
     # Go over every pixel of the image
-    for x in range(img.shape[1]):
-        for y in range(img.shape[0]):
+    for y in range(pad, H+pad):
+        for x in range(pad, W+pad):
+
             # multiplication of the kernel and the image on a specific pixel
-            output_img[y, x] = (kernel * img_padded[y: y+3, x: x+3]).sum()
-            # print(output_img[y, x])
+            # sum the elements of the product
+            img_part = image_padded[y - pad:y + pad + 1, x - pad:x + pad + 1]
+            k = (img_part * kernel).sum()
+            output_img[y - pad, x - pad] = k
+
+    # rescale the image as some values can outside of range 0-255
+    output_img = rescale_intensity(output_img, in_range=(0, 255))
 
     return output_img
 
@@ -42,12 +55,11 @@ def convolution(img, kernel):
 # import image in greyscale
 img = cv2.imread('images/Fallen-Angel.jpg', 0)
 
-# box filter 3x3 (kernel)
-filter = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+# box filter 5x5 (kernel) of value 1/5
+filter = np.ones((5, 5), dtype="float") * (1.0 / (5 * 5))
 
 # call the convolution function on our image and box filter.
 processed_img = convolution(img, filter)
-
 
 # plot both original and processed images with convolution function
 plt.subplot(121), plt.imshow(img, cmap='gray')
