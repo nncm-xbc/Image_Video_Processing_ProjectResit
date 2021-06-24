@@ -5,24 +5,41 @@ import skimage.morphology
 
 def granolumetry(img):
 
-    e_values = [10, 20, 25, 30]
+    area_values = []
+
+    e_values = [5, 10, 15, 20, 25, 30]
     # Successive opening operations
     for e in e_values:
         print("Disk radii = ", e)
         # perform morphological opening with increasing structuring element,
         # here a disk.
-        img = skimage.morphology.dilation(img, skimage.morphology.disk(e))
+        img = skimage.morphology.opening(img, skimage.morphology.disk(e))
 
         # Compute surface area
         # compute the sum of all the pixels of the image after each opening or only the pixels affected by the operation ?
         surface_area = sum(sum(img))
-        print("Surface area: ", surface_area)
+
+        area_values.append(surface_area)
 
         plt.subplot(111), plt.imshow(img, cmap='gray')
         plt.title('image smoothed'), plt.xticks([]), plt.yticks([])
         plt.show()
 
-    return img
+    # compute the difference between adjacent elements of the area values array
+    differences = []
+    previous = 0
+    for area in area_values:
+        if area_values[0] == area:
+            difference_val = 0
+            differences.append(difference_val)
+            previous = area
+        else:
+            difference_val = area - previous
+            differences.append(difference_val)
+            previous = area
+    print("differences :", differences)
+
+    return img, e_values, differences
 
 
 # import both images in grayscale
@@ -30,6 +47,19 @@ bubbles = cv2.imread("images/granulometry1-min.jpg", 0)
 balls = cv2.imread("images/granulometry2-min.jpg", 0)
 
 print("-----Granulometry of the bubbles picture-----")
-granule1 = granolumetry(bubbles)
+granule1, e_val_bubble, area_diff_bubble = granolumetry(bubbles)
+
+plt.plot(e_val_bubble, area_diff_bubble)
+plt.xlabel("Disk radius r")
+plt.ylabel("Differences")
+plt.show()
+
 print("-----Granulometry of the balls picture-----")
-granule2 = granolumetry(balls)
+granule2,  e_val_ball, area_diff_ball = granolumetry(balls)
+
+plt.plot(e_val_ball, area_diff_ball)
+plt.xlabel("Disk radius r")
+plt.ylabel("Differences")
+plt.show()
+
+
