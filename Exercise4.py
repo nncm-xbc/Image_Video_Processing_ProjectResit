@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from matplotlib import pyplot as plt
 
 "---Question 1---"
 """
@@ -14,17 +15,19 @@ for i in range(6):
     counter += 1
     face_image = face_image.reshape(50625)
     face_vector.append(face_image)
+# compute face vectors
 face_vector = np.asarray(face_vector)
 face_vector = face_vector.transpose()
+print("Face vectors: \n", face_vector)
 
 # noramlize face vectors
 avg_face_vector = face_vector.mean(axis=1)
 avg_face_vector = avg_face_vector.reshape(face_vector.shape[0], 1)
 normalized_face_vector = face_vector - avg_face_vector
+print("Normalized face vectors:\n", normalized_face_vector)
 
 # calculate covariance matrix
 covariance_matrix = np.cov(np.transpose(normalized_face_vector))
-
 
 # Calculate the Eigen Values and Eigen Vectors
 eigen_values, eigen_vectors = np.linalg.eig(covariance_matrix)
@@ -36,13 +39,15 @@ print("------Eigen-vectors------")
 print(eigen_vectors)
 print("------Eigen-values------")
 print(eigen_values)
+print("------K-Eigen-vectors------")
+print(k_eigen_vectors)
 
 #  Convert Lower Dimensional K Eigen Vectors to Original Dimensional
 eigen_faces = k_eigen_vectors.dot(normalized_face_vector.T)
 print("------Eigen-faces------")
 print(eigen_faces)
 
-# Represent Each Eigen Face as combination of the K-Eigen Vectors
+# Represent Each Eigen Face as combination of K-Eigen Vectors
 weights = normalized_face_vector.T.dot(eigen_faces.T)
 
 """
@@ -72,7 +77,7 @@ def is_face(img):
     index = np.argmin(np.linalg.norm(weight - weights, axis=1))
     # print("Index of closest match : ", index)
 
-    if distances.min() < 4*10**7:
+    if distances.min() < 5*10**7:
         return print(True, "\n")
     else:
         return print(False, "\n")

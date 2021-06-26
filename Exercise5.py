@@ -79,6 +79,13 @@ power_flowers = np.fft.fftshift(power_spectrum(fft_flowers))
 power_grass = np.fft.fftshift(power_spectrum(fft_grass))
 power_lamps = np.fft.fftshift(power_spectrum(fft_lamps))
 
+# normalize
+
+# compute entropy
+# i = size of image
+(m, n) = bricks.shape
+# h = sum_i(power_spectrum_val(i)*log(power_spectrum_val(i)))
+
 fig3 = plt.figure()
 ax1 = fig3.add_subplot(2, 2, 1)
 ax1.imshow(np.log(1+np.abs(power_bricks)), cmap='gray')
