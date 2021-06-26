@@ -102,7 +102,7 @@ def power_spectrum(fft_img):
 
     # ("Power spectrum 1:\n", power)
     # print("Power spectrum 2:\n", power_check)
-    return power_check
+    return power
 
 
 def entropy(img, vectorized_img):
@@ -124,16 +124,16 @@ power_flowers = np.fft.fftshift(power_spectrum(fft_flowers))
 power_grass = np.fft.fftshift(power_spectrum(fft_grass))
 power_lamps = np.fft.fftshift(power_spectrum(fft_lamps))
 
-# vecotrize the power spectrum
+# vectorize the power spectrum
 vectorized_bricks = power_bricks.flatten()
 vectorized_flowers = power_flowers.flatten()
 vectorized_grass = power_grass.flatten()
 vectorized_lamps = power_lamps.flatten()
 
-# print(vectorized_bricks)
-# print(vectorized_flowers)
-# print(vectorized_grass)
-# print(vectorized_lamps)
+print(vectorized_bricks)
+print(vectorized_flowers)
+print(vectorized_grass)
+print(vectorized_lamps)
 
 print("Bricks entropy:\n", entropy(bricks, vectorized_bricks))
 print("Flowers entropy:\n", entropy(flowers, vectorized_flowers))
