@@ -55,7 +55,7 @@ def convolution(img, kernel):
 # import image in greyscale
 img = cv2.imread('images/Fallen-Angel.jpg', 0)
 
-# box filter 5x5 (kernel) of value 1/5
+# box filter 5x5 (kernel) of value 1/25
 filter = np.ones((5, 5), dtype="float") * (1.0 / (5 * 5))
 
 # call the convolution function on our image and box filter.
@@ -85,5 +85,11 @@ plt.title('FFT of initial image'), plt.xticks([]), plt.yticks([])
 plt.subplot(232), plt.imshow(np.log(1+np.abs(shiftfft_filter)), cmap='gray')
 plt.title('FFT of the filter'), plt.xticks([]), plt.yticks([])
 plt.subplot(233), plt.imshow(np.log(1+np.abs(shiftfft_processed)), cmap='gray')
+plt.title('FFT of processed image'), plt.xticks([]), plt.yticks([])
+plt.show()
+
+fft_processed_img2 = convolution(fft_original_img, fft_filter)
+
+plt.subplot(111), plt.imshow(np.log(1+np.abs(fft_processed_img2)), cmap='gray')
 plt.title('FFT of processed image'), plt.xticks([]), plt.yticks([])
 plt.show()

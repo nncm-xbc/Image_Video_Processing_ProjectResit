@@ -1,13 +1,14 @@
 import cv2
 from matplotlib import pyplot as plt
 import skimage.morphology
+import numpy as np
 
 
 def granolumetry(img):
 
     area_values = []
 
-    e_values = [5, 10, 15, 20, 25, 30]
+    e_values = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
     # Successive opening operations
     for e in e_values:
         print("Disk radii = ", e)
@@ -34,7 +35,7 @@ def granolumetry(img):
             differences.append(difference_val)
             previous = area
         else:
-            difference_val = area - previous
+            difference_val = np.abs(area - previous)
             differences.append(difference_val)
             previous = area
     print("differences :", differences)
